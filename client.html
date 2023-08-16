@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Streaming Client</title>
+  <style>
+    .container {
+      display: flex;
+    }
+
+    .video-container {
+      flex: 1;
+      margin-right: 20px;
+    }
+
+    .playlist {
+      flex: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Video Streaming Client</h1>
+  <div class="container">
+    <div class="video-container">
+        <video id="videoPlayer" controls width="800">
+          <source id="videoSource" src="" type="video/mp4">
+          <track id="videoSubtitles" label="English" kind="subtitles" src="" srclang="en" default>
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="playlist">
+      <h2>Playlist</h2>
+      <ul id="playlist_container">
+      </ul>
+    </div>
+  </div>
+  <script>
+    const playlistContainer = document.getElementById('playlist_container');
+    let htmlContent = '';
+    fetch("http://192.168.15.105:3000/playlist", {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        data.listOfVideos.forEach(videoName => {
+          htmlContent += `<li><a href="#" onclick="playVideo('${videoName}')">${videoName}</a></li>`
+        })
+        playlistContainer.innerHTML = htmlContent;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    function playVideo(videoName) {
+      var videoPlayer = document.getElementById("videoPlayer");
+      var videoSource = document.getElementById("videoSource");
+      var videoSubtitles = document.getElementById("videoSubtitles")
+
+      videoSource.src = `http://192.168.15.105:3000/video?name=${videoName}`;
+      videoSubtitles.src = `http://192.168.15.105:3000/subtitles?name=${videoName}`
+      videoPlayer.load();
+      videoPlayer.play();
+    }
+  </script>
+</body>
+</html>
+
